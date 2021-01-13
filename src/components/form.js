@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { TextInput, TextArea, Select, SelectItem, RadioButtonGroup, RadioButton, Checkbox, Toggle, NumberInput, FileUploaderButton, DatePicker, DatePickerInput, Accordion, AccordionItem, Tooltip } from 'carbon-components-react'
+import { TextInput, TextArea, Select, SelectItem, RadioButtonGroup, RadioButton, Checkbox, Toggle, NumberInput, FileUploaderButton, DatePicker, DatePickerInput, Accordion, AccordionItem, Tooltip, FormLabel } from 'carbon-components-react'
+import CodeMirror from 'react-codemirror';
 import JSONEditor from './json-editor';
 import RecordPicker from './record-picker'
 
@@ -38,6 +39,15 @@ class Form extends Component {
                         onChange={json => this.handleFormUpdate(field.key, json)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
                     />}
+                    {field.type === "code" && <>
+                        <FormLabel>{this.getFieldLabel(field)}</FormLabel>
+                        <CodeMirror
+                            value={this.props.value[field.key]}
+                            defaultValue={this.props.value[field.key] || field.default}
+                            onChange={value => this.handleFormUpdate(field.key, value)}
+                            options={{ theme: 'dracula', lineNumbers: true, tabSize: 1 }}
+                        />
+                    </>}
                     {field.type === "select" && <Select
                         id={`field-${Math.random()}`}
                         name={field.key}
@@ -122,7 +132,7 @@ class Form extends Component {
                             <DatePickerInput
                                 id={`field-${Math.random()}`}
                                 labelText={this.getFieldLabel(field)}
-                            value={this.props.value[field.key]}
+                                value={this.props.value[field.key]}
                             />
                         </DatePicker>}
                     {field.type === "daterange" &&
@@ -172,7 +182,7 @@ class Form extends Component {
                         ...(field.props || {}),
                         invalid: field.invalid && field.invalid(this.props.value[field.key])
                     })}
-                    {field.type !== "none" && <><br /><br /></>}
+                    {!["none", "form"].includes(field.type) && <><br /><br /></>}
                     {field.tooltip && field.tooltip(this.props)}
                 </>}
             </div>)}

@@ -20,7 +20,6 @@ class RecordPicker extends Component {
                 items={this.state.records.map(r => ({ label: r.name, value: r.id }))}
                 onInputChange={value => this.loadComboOptions(value)}
                 onChange={ev => this.props.onChange(ev.selectedItem && ev.selectedItem.value)}
-                onFocus={ev => this.loadComboOptions(this.props.value)}
                 invalid={this.props.invalid}
                 invalidText={this.props.invalidText}
                 disabled={this.props.disabled}
