@@ -88,7 +88,6 @@ class CrudTable extends Component {
                 onRequestSubmit={ev => {
                     this.setState({ loading: true })
                     this.state.dangerFunc()
-                        .finally(() => this.setState({ loading: false }))
                 }}
                 onRequestClose={ev => this.setState({ dangerModalOpen: false })}
             >
@@ -107,10 +106,8 @@ class CrudTable extends Component {
                     await (this.state.formData.id ? this.props.update(this.state.formData) : this.props.create(this.state.formData))
                         .then(() => this.setState({ notification: { kind: 'success', title: this.props.submitSuccessText, caption: "" } }))
                         .catch(err => this.setState({ notification: { kind: 'error', title: this.props.submitErrorText, caption: this.props.formatErrorMessage(err) } }))
-                    this.setState({ loading: false })
                     this.loadResources()
-
-                    this.setState({ modalOpen: false, formData: {}, loading: false })
+                    this.setState({ modalOpen: false, formData: {} })
                 }}
                 onRequestClose={ev => this.setState({ modalOpen: false })}
                 large={this.props.fields.find(f => f.type === "custom")}
