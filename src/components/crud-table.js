@@ -179,7 +179,7 @@ class CrudTable extends Component {
                         isSortable={header.sortable}
                         onClick={ev => { }}
                         onMouseDown={ev => {
-                            if (ev.target.tagName !== "INPUT")
+                            if (header.sortable && !["INPUT", "SELECT"].includes(ev.target.tagName))
                                 this.handleSortChange(header.key, { asc: 'desc', desc: 'none', none: 'asc', }[this.state.order || 'none'])
                         }}
                     >
