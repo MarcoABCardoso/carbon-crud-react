@@ -11,11 +11,12 @@ class Form extends Component {
     }
 
     render() {
-        return (<>
+        return (<span onKeyPress={this.props.onKeyPress}>
             {this.props.fields.map((field, i) => <div key={`field-${i}`}>
                 {(!field.visible || field.visible(this.props.value)) && <>
                     {(field.type === "text" || field.type === "password") && <TextInput
                         id={`field-${Math.random()}`}
+                        placeholder={field.placeholder}
                         labelText={this.getFieldLabel(field)}
                         name={field.key}
                         type={field.type}
@@ -182,11 +183,11 @@ class Form extends Component {
                         ...(field.props || {}),
                         invalid: field.invalid && field.invalid(this.props.value[field.key])
                     })}
-                    {!["none", "form"].includes(field.type) && <><br /><br /></>}
+                    {field.type !== "none" && this.props.fields.length > i + 1 && <><br /><br /></>}
                     {field.tooltip && field.tooltip(this.props)}
                 </>}
             </div>)}
-        </>)
+        </span>)
     }
 
     getFieldLabel(field) {

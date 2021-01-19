@@ -38,7 +38,7 @@ class Wrapper extends React.Component {
         { label: 'Name', key: 'name', type: 'text', invalid: name => !name || !name.match(/^[a-zA-Z _0-9]+$/) },
       ]}
       headers={[
-        { header: 'Name', key: 'name' },
+        { header: 'Name', key: 'name', type: 'text', searchable: true },
         { header: 'Created at', key: 'createdAt', sortable: boolean('Sortable (header.sortable)', true) },
         { header: 'Updated at', key: 'updatedAt', sortable: boolean('Sortable (header.sortable)', true) }
       ]}

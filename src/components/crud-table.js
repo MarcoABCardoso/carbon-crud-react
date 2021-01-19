@@ -124,7 +124,7 @@ class CrudTable extends Component {
     renderTableToolbar(props) {
         return <TableToolbar>
             <TableToolbarContent>
-                {this.props.searchable && <TableToolbarSearch persistant value={this.state.tempSearch} onChange={ev => this.handleSearchChange(ev.target.value)} />}
+                {this.props.searchable && <TableToolbarSearch  onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange({ ...this.state.search, search: this.state.tempSearch })} persistant value={this.state.tempSearch} onChange={ev => this.setState({ tempSearch: ev.target.value })} />}
                 {this.props.toolbarContent}
                 {this.props.create && <Button onClick={ev => this.setState({ modalOpen: true, formData: {}, blinkForm: true }, () => this.setState({ blinkForm: false }))}>{this.props.addButtonText}</Button>}
             </TableToolbarContent>
@@ -171,8 +171,27 @@ class CrudTable extends Component {
                 {this.props.renderDetail && <TableExpandHeader />}
                 {this.props.selectable && (this.props.radio ? <TableExpandHeader /> : <TableSelectAll {...props.getSelectionProps()} />)}
                 {this.props.headers.map((header, i) => (
-                    <TableHeader key={`header-${i}`} {...props.getHeaderProps({ header })} isSortHeader={header.key === this.state.sortHeader} sortDirection={this.state.order ? this.state.order.toUpperCase() : 'NONE'} isSortable={header.sortable} {...(this.handleSortChange ? { onClick: ev => this.handleSortChange(header.key, { asc: 'desc', desc: 'none', none: 'asc', }[this.state.order || 'none']) } : {})}>
-                        {header.header}
+                    <TableHeader
+                        key={`header-${i}`}
+                        {...props.getHeaderProps({ header })}
+                        isSortHeader={header.key === this.state.sortHeader}
+                        sortDirection={this.state.order ? this.state.order.toUpperCase() : 'NONE'}
+                        isSortable={header.sortable}
+                        onClick={ev => { }}
+                        onMouseDown={ev => {
+                            if (ev.target.tagName !== "INPUT")
+                                this.handleSortChange(header.key, { asc: 'desc', desc: 'none', none: 'asc', }[this.state.order || 'none'])
+                        }}
+                    >
+                        {!header.searchable && header.header}
+                        {header.searchable && <>
+                            <Form
+                                fields={[{ ...header, type: header.type === "id" ? "number" : header.type, label: " ", placeholder: header.header }]}
+                                value={this.state.search}
+                                onChange={change => this.setState({ search: { ...this.state.search, ...change } })}
+                                onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange(this.state.search)}
+                            />
+                        </>}
                     </TableHeader>
                 ))}
                 <TableHeader />
@@ -259,7 +278,7 @@ class CrudTable extends Component {
             offset: this.state.offset,
             order_by: this.state.order_by,
             order: this.state.order,
-            search: this.state.search
+            ...this.state.search
         })
             .then(data => this.setState({ rows: data.rows, rowCount: data.count, loading: false }))
             .catch(err => this.setState({ notification: { kind: 'error', title: this.props.listErrorText, caption: this.props.formatErrorMessage(err) }, loading: false }))
@@ -276,14 +295,13 @@ class CrudTable extends Component {
     }
 
     handleSearchChange(search) {
-        this.setState({ tempSearch: search })
-        clearTimeout(this.searchTimeout)
+        this.setState({ tempSearch: search.search })
         this.setState({
             search,
             offset: 0
         })
-        if (this.props.clientPagination && !this.props.forceSearch) return
-        this.searchTimeout = setTimeout(() => this.loadResources(), 1000)
+        if (this.props.clientPagination) return
+        setTimeout(() => this.loadResources(), 0)
     }
 
     hasOverflowOptions() {
