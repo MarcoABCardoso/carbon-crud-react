@@ -183,7 +183,7 @@ class Form extends Component {
                         ...(field.props || {}),
                         invalid: field.invalid && field.invalid(this.props.value[field.key])
                     })}
-                    {field.type !== "none" && this.props.fields.length > i + 1 && <><br /><br /></>}
+                    {!["none", "form"].includes(field.type) && this.props.fields.length > i + 1 && <><br /><br /></>}
                     {field.tooltip && field.tooltip(this.props)}
                 </>}
             </div>)}
