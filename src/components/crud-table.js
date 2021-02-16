@@ -94,14 +94,12 @@ class CrudTable extends Component {
                 {this.props.dangerModalContent && this.props.dangerModalContent(this)}
             </Modal>
             <Modal
-                disabled
+                primaryButtonDisabled={this.props.fields.find(field => field.invalid && field.invalid(this.state.formData[field.key]))}
                 open={this.state.modalOpen}
                 primaryButtonText={this.props.submitButtonText}
                 secondaryButtonText={this.props.cancelButtonText}
                 passiveModal={this.state.loading}
                 onRequestSubmit={async () => {
-                    for (let field of this.props.fields)
-                        if (field.invalid && field.invalid(this.state.formData[field.key])) return
                     this.setState({ loading: true })
                     await (this.state.formData.id ? this.props.update(this.state.formData) : this.props.create(this.state.formData))
                         .then(() => this.setState({ notification: { kind: 'success', title: this.props.submitSuccessText, caption: "" } }))

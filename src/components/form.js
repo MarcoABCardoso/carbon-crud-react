@@ -23,6 +23,7 @@ class Form extends Component {
                         value={this.props.value[field.key] || ""}
                         onChange={ev => this.handleFormUpdate(field.key, ev.target.value)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key] || "")}
+                        invalidText={field.invalidText}
                     />}
                     {field.type === "textarea" && <TextArea
                         id={`field-${Math.random()}`}
@@ -31,6 +32,7 @@ class Form extends Component {
                         value={this.props.value[field.key]}
                         onChange={ev => this.handleFormUpdate(field.key, ev.target.value)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                        invalidText={field.invalidText}
                     />}
                     {field.type === "json" && <JSONEditor
                         id={`field-${Math.random()}`}
@@ -39,6 +41,7 @@ class Form extends Component {
                         value={this.props.value[field.key]}
                         onChange={json => this.handleFormUpdate(field.key, json)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                        invalidText={field.invalidText}
                     />}
                     {field.type === "code" && <>
                         <FormLabel>{this.getFieldLabel(field)}</FormLabel>
@@ -56,6 +59,7 @@ class Form extends Component {
                         value={this.props.value[field.key]}
                         onChange={ev => this.handleFormUpdate(field.key, ev.target.value)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                        invalidText={field.invalidText}
                     >
                         {(this.state.options[field.key] || field.options || []).map((option, j) =>
                             <SelectItem
@@ -71,6 +75,7 @@ class Form extends Component {
                         valueSelected={String(this.props.value[field.key])}
                         onChange={selected => this.handleFormUpdate(field.key, selected)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                        invalidText={field.invalidText}
                     >
                         {(this.state.options[field.key] || field.options || []).map((option, j) =>
                             <RadioButton
@@ -87,6 +92,7 @@ class Form extends Component {
                         toggled={this.props.value[field.key]}
                         onToggle={state => this.handleFormUpdate(field.key, state)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                        invalidText={field.invalidText}
                     />}
                     {field.type === "checkbox" && <Checkbox
                         id={`field-${Math.random()}`}
@@ -95,6 +101,7 @@ class Form extends Component {
                         checked={this.props.value[field.key] || false}
                         onChange={checked => this.handleFormUpdate(field.key, checked)}
                         invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                        invalidText={field.invalidText}
                     />}
                     {field.type === "number" &&
                         <NumberInput
@@ -107,6 +114,7 @@ class Form extends Component {
                             max={field.max}
                             min={field.min}
                             invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                            invalidText={field.invalidText}
                         />}
                     {field.type === "file" && <FileUploaderButton
                         name={field.key}
@@ -129,6 +137,7 @@ class Form extends Component {
                             locale={navigator.language.slice(0, 2)}
                             value={this.props.value[field.key]}
                             invalid={field.invalid && field.invalid(this.props.value[field.key])}
+                            invalidText={field.invalidText}
                         >
                             <DatePickerInput
                                 id={`field-${Math.random()}`}
@@ -181,7 +190,8 @@ class Form extends Component {
                         value: this.props.value[field.key],
                         onChange: state => this.handleFormUpdate(field.key, state),
                         ...(field.props || {}),
-                        invalid: field.invalid && field.invalid(this.props.value[field.key])
+                        invalid: field.invalid && field.invalid(this.props.value[field.key]),
+                        invalidText: field.invalidText
                     })}
                     {!["none", "form"].includes(field.type) && this.props.fields.length > i + 1 && <><br /><br /></>}
                     {field.tooltip && field.tooltip(this.props)}

@@ -1,8 +1,8 @@
-type Record = { id: any }
-type CrudFieldType = 'text' | 'password' | 'textarea' | 'json' | 'select' | 'radio' | 'toggle' | 'checkbox' | 'number' | 'file' | 'recordpicker' | 'date' | 'daterange'
+import React from 'react'
+type CrudFieldType = 'text' | 'password' | 'textarea' | 'json' | 'select' | 'radio' | 'toggle' | 'checkbox' | 'number' | 'file' | 'objectpicker' | 'date' | 'daterange'
 type CrudTableHeader = { header: string; key: string, sortable: boolean }
-type CrudTableRowOption = { text: string, onClick: function(Record), batch: boolean, confirm: boolean, condition: function(Record): boolean }
-type CrudFormField = { label: string, key: string, type: CrudFieldType, invalid: function(any): boolean }
+type CrudTableRowOption = { text: string, onClick: (object) => void, batch: boolean, confirm: boolean, condition: (object) => boolean }
+type CrudFormField = { label: string, key: string, type: CrudFieldType, invalid: (any) => boolean }
 
 declare interface CrudTableProps {
     /**
@@ -13,10 +13,6 @@ declare interface CrudTableProps {
      * The form's fields
      */
     fields: CrudFormField[]
-    /**
-     * The advanced search options. Will omit search if null
-     */
-    advancedSearchOptions: AdvancedSearchProps
     /**
      * The options available on each row
      */
@@ -52,24 +48,24 @@ declare interface CrudTableProps {
     /**
      * Function that lists resources
      */
-    list: function(string, object): Record[]
+    list: (object) => Promise<object[]>
     /**
      * Function that creates a resource
      */
-    create: function(string, object): Record
+    create: (object) => Promise<object>
     /**
      * Function that updates a resource
      */
-    update: function(string, object): Record
+    update: (object) => Promise<object>
     /**
      * Function that deletes a resource
      */
-    delete: function(string, object): Record
+    delete: (object) => Promise<object>
 }
 declare interface CrudTableState {
     limit: number
     offset: number
-    rows: Record[]
+    rows: object[]
     search: any
     formData: any
     loading: boolean
