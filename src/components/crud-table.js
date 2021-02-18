@@ -113,7 +113,7 @@ class CrudTable extends Component {
                 {this.state.modalOpen && !this.state.blinkForm && <Form
                     fields={this.props.fields}
                     value={this.state.formData}
-                    onChange={formData => this.setState({ formData })}
+                    onChange={formData => { this.props.onFormUpdate(formData); this.setState({ formData }) }}
                 />}
             </Modal>
         </>)
@@ -122,7 +122,7 @@ class CrudTable extends Component {
     renderTableToolbar(props) {
         return <TableToolbar>
             <TableToolbarContent>
-                {this.props.searchable && <TableToolbarSearch  onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange({ ...this.state.search, search: this.state.tempSearch })} persistant value={this.state.tempSearch} onChange={ev => this.setState({ tempSearch: ev.target.value })} />}
+                {this.props.searchable && <TableToolbarSearch onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange({ ...this.state.search, search: this.state.tempSearch })} persistant value={this.state.tempSearch} onChange={ev => this.setState({ tempSearch: ev.target.value })} />}
                 {this.props.toolbarContent}
                 {this.props.create && <Button onClick={ev => this.setState({ modalOpen: true, formData: {}, blinkForm: true }, () => this.setState({ blinkForm: false }))}>{this.props.addButtonText}</Button>}
             </TableToolbarContent>
@@ -313,6 +313,7 @@ class CrudTable extends Component {
 }
 
 CrudTable.defaultProps = {
+    onFormUpdate: (formData) => { },
     list: (options) => ({ rows: [], count: 0 }),
     headers: [],
     fields: [],

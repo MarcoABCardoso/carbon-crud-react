@@ -46,6 +46,10 @@ declare interface CrudTableProps {
      */
     submitButtonText: string
     /**
+     * Handler for catching changes to the form
+     */
+    onFormUpdate: (object) => void
+    /**
      * Function that lists resources
      */
     list: (object) => Promise<object[]>
