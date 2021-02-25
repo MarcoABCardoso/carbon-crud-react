@@ -1,7 +1,7 @@
 {
   "name": "carbon-crud-react",
   "description": "CRUD tools for carbon components react",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "main": "dist/index.js",
   "module": "dist/index.js",
   "source": "src/index.js",

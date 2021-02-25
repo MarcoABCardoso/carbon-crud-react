@@ -298,7 +298,7 @@ class CrudTable extends Component {
             search,
             offset: 0
         })
-        if (this.props.clientPagination) return
+        if (this.props.clientPagination && !this.props.forceSearch) return
         setTimeout(() => this.loadResources(), 0)
     }
 
