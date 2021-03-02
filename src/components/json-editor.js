@@ -1,7 +1,5 @@
 import React, { Component } from 'react';
 import CodeMirror from 'react-codemirror';
-import 'codemirror/lib/codemirror.css'
-import 'codemirror/theme/dracula.css'
 import { FormLabel } from 'carbon-components-react';
 require('codemirror/mode/javascript/javascript');
 
