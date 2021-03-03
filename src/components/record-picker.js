@@ -14,6 +14,7 @@ class RecordPicker extends Component {
         return (<>
             <FormLabel>{this.props.label}</FormLabel>
             <ComboBox
+                id={this.props.id}
                 placeholder={this.props.placeholder}
                 initialSelectedItem={selectedRecord && selectedRecord.name}
                 selectedItem={selectedRecord && selectedRecord.name}

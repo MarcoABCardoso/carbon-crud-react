@@ -47,7 +47,7 @@ class CrudTable extends Component {
                             if (isNaN(a) || isNaN(b)) return 2 * Number(this.state.order === 'asc' ? a > b : a < b) - 1
                             else return this.state.order === 'asc' ? a - b : b - a
                         })
-                        .filter(row => (this.state.search && !this.props.forceSearch) ? JSON.stringify(row).includes(this.state.search) : true)
+                        .filter(row => (this.state.search && !this.props.forceSearch) ? JSON.stringify(row).toLowerCase().includes((this.state.search.search || "").toLowerCase()) : true)
                         .filter((_, i) => i >= this.state.offset && i < this.state.offset + this.state.limit) :
                         this.state.rows
                     }
@@ -65,14 +65,13 @@ class CrudTable extends Component {
                 <DataTableSkeleton style={this.props.style} />
             }
             <Pagination
-                pageInputDisabled={this.props.rowCount > 10000}
-                totalItems={this.props.clientPagination && !this.props.forceSearch ? this.state.rows.filter(row => JSON.stringify(row).includes(this.state.search)).length : this.state.rowCount}
+                disabled={this.props.rowCount > 10000}
+                totalItems={this.props.clientPagination && !this.props.forceSearch ? this.state.rows.filter(row => JSON.stringify(row).toLowerCase().includes(this.state.search && (this.state.search.search || "").toLowerCase())).length : this.state.rowCount}
                 pageSizes={this.props.pageSizes}
                 onChange={({ page, pageSize }) => this.handlePaginationChange({ limit: pageSize, offset: pageSize * (page - 1) })}
             />
             <Modal
                 open={this.state.detailModalOpen}
-                focusTrap={false}
                 passiveModal
                 onRequestClose={ev => this.setState({ detailModalOpen: false })}
             >
@@ -83,7 +82,6 @@ class CrudTable extends Component {
                 primaryButtonText={this.props.confirmButtonText}
                 secondaryButtonText={this.props.cancelButtonText}
                 danger={true}
-                focusTrap={true}
                 modalHeading={this.props.areYouSureText}
                 onRequestSubmit={ev => {
                     this.setState({ loading: true })
@@ -122,7 +120,7 @@ class CrudTable extends Component {
     renderTableToolbar(props) {
         return <TableToolbar>
             <TableToolbarContent>
-                {this.props.searchable && <TableToolbarSearch onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange({ ...this.state.search, search: this.state.tempSearch })} persistant value={this.state.tempSearch} onChange={ev => this.setState({ tempSearch: ev.target.value })} />}
+                {this.props.searchable && <TableToolbarSearch onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange({ ...this.state.search, search: this.state.tempSearch })} persistent value={this.state.tempSearch} onChange={ev => this.setState({ tempSearch: ev.target.value })} />}
                 {this.props.toolbarContent}
                 {this.props.create && <Button onClick={ev => this.setState({ modalOpen: true, formData: {}, blinkForm: true }, () => this.setState({ blinkForm: false }))}>{this.props.addButtonText}</Button>}
             </TableToolbarContent>
@@ -130,8 +128,9 @@ class CrudTable extends Component {
                 {this.props.rowOptions
                     .filter(link => link.condition ? props.selectedRows.reduce((allAllowed, row) => allAllowed && link.condition(row), true) : true)
                     .filter(link => link.batch)
-                    .map(link =>
+                    .map((link, i) =>
                         <TableBatchAction
+                            key={`batch-action-${i}`}
                             onClick={ev => this.setState({
                                 dangerModalOpen: true,
                                 dangerFunc: () => Promise.all(props.selectedRows.map(row => link.onClick(this.state.rows.find(r => r.id === row.id))))
@@ -139,7 +138,7 @@ class CrudTable extends Component {
                                     .then(() => this.setState({ dangerModalOpen: false }))
                                     .then(() => this.loadResources())
                             })}
-                            renderIcon={() => <Icon style={{ marginLeft: "0.5rem" }} fill="white" icon={iconSettings} />}
+                            renderIcon={() => <Icon description="Batch action" style={{ marginLeft: "0.5rem" }} fill="white" icon={iconSettings} />}
                         >
                             {link.text}
                         </TableBatchAction>
@@ -153,7 +152,7 @@ class CrudTable extends Component {
                             .then(() => this.setState({ dangerModalOpen: false }))
                             .then(() => this.loadResources())
                     })}
-                    renderIcon={() => <Icon style={{ marginLeft: "0.5rem" }} fill="white" icon={iconDelete} />}
+                    renderIcon={() => <Icon description="Batch delete" style={{ marginLeft: "0.5rem" }} fill="white" icon={iconDelete} />}
                 >
                     {this.props.deleteButtonText}
                 </TableBatchAction>
@@ -202,7 +201,7 @@ class CrudTable extends Component {
         let RowType = this.props.renderDetail ? TableExpandRow : TableRow
         return <TableBody>
             {props.rows.map((row, i) => <>
-                <RowType {...props.getRowProps({ row })}>
+                <RowType key={`row-${i}`} {...props.getRowProps({ row })}>
                     {this.props.selectable && <TableSelectRow {...props.getSelectionProps({ row })} />}
                     {row.cells.map((cell, j) => <TableCell
                         key={`cell-${j}`}>
@@ -210,11 +209,11 @@ class CrudTable extends Component {
                     </TableCell>)}
                     <TableCell>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            {this.props.rowOptions.length > 0 && <OverflowMenu floatingMenu={true} flipped>
+                            {this.props.rowOptions.length > 0 && <OverflowMenu flipped>
                                 {this.props.rowOptions
                                     .filter(link => link.condition ? link.condition(this.state.rows.find(r => r.id === row.id)) : true)
-                                    .map((link, i) => <OverflowMenuItem
-                                        key={`link-${i}`}
+                                    .map((link, k) => <OverflowMenuItem
+                                        key={`link-${k}`}
                                         itemText={link.text}
                                         onClick={async () => {
                                             if (link.confirm)

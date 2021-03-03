@@ -125,6 +125,7 @@ class Form extends Component {
                         id={`field-${Math.random()}`}
                         label={this.getFieldLabel(field)}
                         name={field.key}
+                        placeholder={field.placeholder}
                         fetchOptions={field.fetchOptions}
                         value={this.props.value[field.key]}
                         onChange={value => this.handleFormUpdate(field.key, value)} />}
