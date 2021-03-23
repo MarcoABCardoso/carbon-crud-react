@@ -111,7 +111,10 @@ class CrudTable extends Component {
                 {this.state.modalOpen && !this.state.blinkForm && <Form
                     fields={this.props.fields}
                     value={this.state.formData}
-                    onChange={formData => { this.props.onFormUpdate(formData); this.setState({ formData }) }}
+                    onChange={async formData => {
+                        await this.props.onFormUpdate(formData);
+                        this.setState({ formData })
+                    }}
                 />}
             </Modal>
         </>)
@@ -126,17 +129,14 @@ class CrudTable extends Component {
             </TableToolbarContent>
             <TableBatchActions {...props.getBatchActionProps()}>
                 {this.props.rowOptions
-                    .filter(link => link.condition ? props.selectedRows.reduce((allAllowed, row) => allAllowed && link.condition(row), true) : true)
+                    .filter(link => link.condition ? props.selectedRows.reduce((allAllowed, row) => allAllowed && this.state.rows.find(r => r.id === row.id) && link.condition(this.state.rows.find(r => r.id === row.id)), true) : true)
                     .filter(link => link.batch)
                     .map((link, i) =>
                         <TableBatchAction
                             key={`batch-action-${i}`}
                             onClick={ev => this.setState({
                                 dangerModalOpen: true,
-                                dangerFunc: () => Promise.all(props.selectedRows.map(row => link.onClick(this.state.rows.find(r => r.id === row.id))))
-                                    .catch(err => this.setState({ notification: { kind: 'error', title: this.props.submitErrorText, caption: this.props.formatErrorMessage(err) } }))
-                                    .then(() => this.setState({ dangerModalOpen: false }))
-                                    .then(() => this.loadResources())
+                                dangerFunc: () => Promise.all(props.selectedRows.map(row => this.executeRowOption(row, link, false))).then(() => this.loadResources())
                             })}
                             renderIcon={() => <Icon description="Batch action" style={{ marginLeft: "0.5rem" }} fill="white" icon={iconSettings} />}
                         >
@@ -146,11 +146,7 @@ class CrudTable extends Component {
                 <TableBatchAction
                     onClick={ev => this.setState({
                         dangerModalOpen: true,
-                        dangerFunc: () => Promise.all(props.selectedRows.map(row => this.props.delete(row)))
-                            .then(data => this.setState({ notification: { kind: 'success', title: this.props.deleteSuccessText, caption: "" } }))
-                            .catch(err => this.setState({ notification: { kind: 'error', title: this.props.deleteErrorText, caption: this.props.formatErrorMessage(err) } }))
-                            .then(() => this.setState({ dangerModalOpen: false }))
-                            .then(() => this.loadResources())
+                        dangerFunc: () => Promise.all(props.selectedRows.map(row => this.deleteRow(row, false))).then(() => this.loadResources())
                     })}
                     renderIcon={() => <Icon description="Batch delete" style={{ marginLeft: "0.5rem" }} fill="white" icon={iconDelete} />}
                 >
@@ -209,9 +205,9 @@ class CrudTable extends Component {
                     </TableCell>)}
                     <TableCell>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            {this.props.rowOptions.length > 0 && <OverflowMenu flipped>
+                            {(this.props.rowOptions.length > 0 || this.props.update || this.props.delete) && <OverflowMenu flipped>
                                 {this.props.rowOptions
-                                    .filter(link => link.condition ? link.condition(this.state.rows.find(r => r.id === row.id)) : true)
+                                    .filter(link => (link.condition && this.state.rows.find(r => r.id === row.id)) ? link.condition(this.state.rows.find(r => r.id === row.id)) : true)
                                     .map((link, k) => <OverflowMenuItem
                                         key={`link-${k}`}
                                         itemText={link.text}
@@ -219,15 +215,10 @@ class CrudTable extends Component {
                                             if (link.confirm)
                                                 this.setState({
                                                     dangerModalOpen: true,
-                                                    dangerFunc: async () => {
-                                                        this.setState({ loading: true, dangerModalOpen: false })
-                                                        await link.onClick(this.state.rows.find(r => r.id === row.id))
-                                                        this.loadResources()
-                                                    }
+                                                    dangerFunc: async () => this.executeRowOption(row, link)
                                                 })
                                             else {
-                                                await link.onClick(this.state.rows.find(r => r.id === row.id))
-                                                this.loadResources()
+                                                this.executeRowOption(row, link)
                                             }
                                         }}
                                     />
@@ -244,11 +235,7 @@ class CrudTable extends Component {
                                     onClick={() => {
                                         this.setState({
                                             dangerModalOpen: true,
-                                            dangerFunc: async () => {
-                                                await this.props.delete(row)
-                                                this.loadResources()
-                                                this.setState({ dangerModalOpen: false })
-                                            }
+                                            dangerFunc: () => this.deleteRow(row)
                                         })
                                     }} />}
                             </OverflowMenu>}
@@ -279,6 +266,30 @@ class CrudTable extends Component {
         })
             .then(data => this.setState({ rows: data.rows, rowCount: data.count, loading: false }))
             .catch(err => this.setState({ notification: { kind: 'error', title: this.props.listErrorText, caption: this.props.formatErrorMessage(err) }, loading: false }))
+    }
+
+    async executeRowOption(row, option, reload = true) {
+        this.setState({ loading: true })
+        try {
+            await option.onClick(this.state.rows.find(r => r.id === row.id))
+            this.setState({ dangerModalOpen: false, notification: { kind: 'success', title: this.props.actionSuccessText, caption: "" } })
+            if (reload) this.loadResources()
+        } catch (err) {
+            this.setState({ notification: { kind: 'error', title: this.props.actionErrorText, caption: this.props.formatErrorMessage(err) } })
+        }
+        this.setState({ loading: false })
+    }
+
+    async deleteRow(row, reload = true) {
+        this.setState({ loading: true })
+        try {
+            await this.props.delete(this.state.rows.find(r => r.id === row.id))
+            this.setState({ dangerModalOpen: false, notification: { kind: 'success', title: this.props.deleteSuccessText, caption: "" } })
+            if (reload) this.loadResources()
+        } catch (err) {
+            this.setState({ notification: { kind: 'error', title: this.props.deleteErrorText, caption: this.props.formatErrorMessage(err) } })
+        }
+        this.setState({ loading: false })
     }
 
     handlePaginationChange(change) {
@@ -328,6 +339,8 @@ CrudTable.defaultProps = {
     submitErrorText: "Error creating resource",
     deleteSuccessText: "Resource deleted successfully",
     deleteErrorText: "Error deleting resource",
+    actionSuccessText: "Action executed successfully",
+    actionErrorText: "Error executing action",
     listErrorText: "Error listing resources",
     formatErrorMessage: error => error.response ? (error.response.data.message || error.response.data.error) : (error.message || error.error),
 
