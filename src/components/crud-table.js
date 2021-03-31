@@ -112,8 +112,8 @@ class CrudTable extends Component {
                     fields={this.props.fields}
                     value={this.state.formData}
                     onChange={async formData => {
-                        await this.props.onFormUpdate(formData);
-                        this.setState({ formData })
+                        new Promise(r => setTimeout(r, 0))
+                        return this.setState({ formData }, () => this.props.onFormUpdate(formData))
                     }}
                 />}
             </Modal>
