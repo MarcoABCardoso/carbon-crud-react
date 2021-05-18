@@ -7,7 +7,8 @@ import RecordPicker from './record-picker'
 class Form extends Component {
 
     state = {
-        options: {}
+        options: {},
+        blinkChildForms: {}
     }
 
     render() {
@@ -173,12 +174,12 @@ class Form extends Component {
                         ...(field.props || {}),
                     })}
                     {field.type === "form" && <Accordion>
-                        <AccordionItem title={this.getFieldLabel(field)}>
-                            <Form
+                        <AccordionItem title={this.getFieldLabel(field)} onHeadingClick={() => this.setState({ blinkChildForms: { ...this.state.blinkChildForms, [field.key]: true } }, () => this.setState({ blinkChildForms: { ...this.state.blinkChildForms, [field.key]: false } }))}>
+                            {!this.state.blinkChildForms[field.key] && <Form
                                 {...this.props}
                                 fields={field.fields}
                                 value={this.props.value[field.key]}
-                                onChange={value => this.handleFormUpdate(field.key, value)} />
+                                onChange={value => this.handleFormUpdate(field.key, value)} />}
                         </AccordionItem>
                     </Accordion>}
                     {field.type === "id" && this.props.value[field.key] && <span style={{ color: "lightgray", fontSize: "small" }}>
@@ -210,7 +211,7 @@ class Form extends Component {
 
     componentDidMount() {
         if (this.isMultipart()) this.props.onChange(new FormData())
-        setTimeout(() => this.props.fields.map((field, i) => field.default !== undefined && this.handleFormUpdate(field.key, field.default)), 0);
+        setTimeout(() => this.props.fields.map((field, i) => field.default !== undefined && this.props.value[field.key] === undefined && this.handleFormUpdate(field.key, field.default)), 0);
     }
 
     handleFormUpdate(key, value) {

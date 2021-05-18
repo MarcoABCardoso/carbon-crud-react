@@ -21,7 +21,6 @@ class CrudTable extends Component {
             formData: {},
             loading: false,
             notification: null,
-            blinkForm: false,
         }
     }
 
@@ -108,13 +107,10 @@ class CrudTable extends Component {
                 onRequestClose={ev => this.setState({ modalOpen: false })}
                 large={this.props.fields.find(f => f.type === "custom")}
             >
-                {this.state.modalOpen && !this.state.blinkForm && <Form
+                {this.state.modalOpen && <Form
                     fields={this.props.fields}
                     value={this.state.formData}
-                    onChange={async formData => {
-                        new Promise(r => setTimeout(r, 0))
-                        return this.setState({ formData }, () => this.props.onFormUpdate(formData))
-                    }}
+                    onChange={formData => this.setState({ formData }, () => this.props.onFormUpdate(formData))}
                 />}
             </Modal>
         </>)
@@ -125,7 +121,7 @@ class CrudTable extends Component {
             <TableToolbarContent>
                 {this.props.searchable && <TableToolbarSearch onKeyPress={ev => ev.key === "Enter" && this.handleSearchChange({ ...this.state.search, search: this.state.tempSearch })} persistent value={this.state.tempSearch} onChange={ev => this.setState({ tempSearch: ev.target.value })} />}
                 {this.props.toolbarContent}
-                {this.props.create && <Button onClick={ev => this.setState({ modalOpen: true, formData: {}, blinkForm: true }, () => this.setState({ blinkForm: false }))}>{this.props.addButtonText}</Button>}
+                {this.props.create && <Button onClick={ev => this.setState({ modalOpen: true, formData: {} })}>{this.props.addButtonText}</Button>}
             </TableToolbarContent>
             <TableBatchActions {...props.getBatchActionProps()}>
                 {this.props.rowOptions
@@ -226,7 +222,7 @@ class CrudTable extends Component {
                                 {this.props.update && <OverflowMenuItem
                                     itemText="Edit"
                                     onClick={() => {
-                                        this.setState({ formData: this.state.rows.find(i => i.id === row.id), modalOpen: true, blinkForm: true }, () => this.setState({ blinkForm: false }))
+                                        this.setState({ formData: this.state.rows.find(i => i.id === row.id), modalOpen: true })
                                     }} />}
                                 {this.props.delete && <OverflowMenuItem
                                     itemText={this.props.deleteButtonText}
