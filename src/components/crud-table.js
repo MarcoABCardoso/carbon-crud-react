@@ -222,7 +222,8 @@ class CrudTable extends Component {
                                 {this.props.update && <OverflowMenuItem
                                     itemText="Edit"
                                     onClick={() => {
-                                        this.setState({ formData: this.state.rows.find(i => i.id === row.id), modalOpen: true })
+                                        let formData = this.state.rows.find(i => i.id === row.id)
+                                        this.setState({ formData, modalOpen: true }, () => this.props.onFormUpdate(formData))
                                     }} />}
                                 {this.props.delete && <OverflowMenuItem
                                     itemText={this.props.deleteButtonText}
