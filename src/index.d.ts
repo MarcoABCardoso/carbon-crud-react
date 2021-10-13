@@ -8,16 +8,18 @@ declare interface CrudOptions {
     headers: Header[]
     fields: FormField[]
     rowOptions: RowOption[]
+    onClickRow: (object) => Promise<any>
+    modalSize:'xs' | 'sm' | 'md' | 'lg'
     selectable: boolean
     searchable: boolean
     pageSizes: number[]
     cancelButtonText: string
     confirmButtonText: string
     submitButtonText: string
-    list: (object) => Promise<Record[]>
-    create: (object) => Promise<Record>
-    update: (object) => Promise<Record>
-    delete: (object) => Promise<Record>
+    list: (params) => Promise<{ rows: any[], count: number }>
+    create: (record) => Promise<any>
+    update: (record) => Promise<any>
+    delete: (record) => Promise<any>
 }
 
 declare interface CrudTableState {

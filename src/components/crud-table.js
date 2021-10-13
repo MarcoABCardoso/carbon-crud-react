@@ -105,7 +105,7 @@ class CrudTable extends Component {
                     this.setState({ modalOpen: false, formData: {} })
                 }}
                 onRequestClose={ev => this.setState({ modalOpen: false })}
-                large={this.props.fields.find(f => f.type === "custom")}
+                size={this.props.modalSize}
             >
                 {this.state.modalOpen && <Form
                     fields={this.props.fields}
@@ -193,7 +193,7 @@ class CrudTable extends Component {
         let RowType = this.props.renderDetail ? TableExpandRow : TableRow
         return <TableBody>
             {props.rows.map((row, i) => <>
-                <RowType key={`row-${i}`} {...props.getRowProps({ row })}>
+                <RowType key={`row-${i}`} {...props.getRowProps({ row })} style={{ cursor: this.props.onClickRow ? 'pointer' : 'auto' }} onClick={ev => this.props.onClickRow && this.props.onClickRow(this.state.rows.find(r => r.id === row.id))}>
                     {this.props.selectable && <TableSelectRow {...props.getSelectionProps({ row })} />}
                     {row.cells.map((cell, j) => <TableCell
                         key={`cell-${j}`}>
@@ -220,7 +220,7 @@ class CrudTable extends Component {
                                     />
                                     )}
                                 {this.props.update && <OverflowMenuItem
-                                    itemText="Edit"
+                                    itemText={this.props.editButtonText}
                                     onClick={() => {
                                         let formData = this.state.rows.find(i => i.id === row.id)
                                         this.setState({ formData, modalOpen: true }, () => this.props.onFormUpdate(formData))
@@ -327,6 +327,7 @@ CrudTable.defaultProps = {
     rowOptions: [],
     pageSizes: [10, 50, 100],
     addButtonText: "Add",
+    editButtonText: "Edit",
     deleteButtonText: "Delete",
     areYouSureText: "Are you sure?",
     cancelButtonText: "Cancel",
