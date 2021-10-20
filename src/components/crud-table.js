@@ -193,7 +193,7 @@ class CrudTable extends Component {
         let RowType = this.props.renderDetail ? TableExpandRow : TableRow
         return <TableBody>
             {props.rows.map((row, i) => <>
-                <RowType key={`row-${i}`} {...props.getRowProps({ row })} style={{ cursor: this.props.onClickRow ? 'pointer' : 'auto' }} onClick={ev => this.props.onClickRow && this.props.onClickRow(this.state.rows.find(r => r.id === row.id))}>
+                <RowType key={`row-${i}`} {...props.getRowProps({ row })} style={{ cursor: "pointer" }} onClick={ev => this.handleClickRow(row)}>
                     {this.props.selectable && <TableSelectRow {...props.getSelectionProps({ row })} />}
                     {row.cells.map((cell, j) => <TableCell
                         key={`cell-${j}`}>
@@ -221,10 +221,7 @@ class CrudTable extends Component {
                                     )}
                                 {this.props.update && <OverflowMenuItem
                                     itemText={this.props.editButtonText}
-                                    onClick={() => {
-                                        let formData = this.state.rows.find(i => i.id === row.id)
-                                        this.setState({ formData, modalOpen: true }, () => this.props.onFormUpdate(formData))
-                                    }} />}
+                                    onClick={this.handleEditRow.bind(this, row)} />}
                                 {this.props.delete && <OverflowMenuItem
                                     itemText={this.props.deleteButtonText}
                                     hasDivider
@@ -289,6 +286,16 @@ class CrudTable extends Component {
         this.setState({ loading: false })
     }
 
+    handleEditRow(formData) {
+        this.setState({ formData, modalOpen: true }, () => this.props.onFormUpdate(formData))
+    }
+
+    handleClickRow(row) {
+        let formData = this.state.rows.find(i => i.id === row.id)
+        if (this.props.onClickRow) return this.props.onClickRow(formData)
+        if (this.props.update) return this.handleEditRow(formData)
+    }
+
     handlePaginationChange(change) {
         this.setState(change, () => this.props.clientPagination ? null : this.loadResources())
     }
@@ -341,7 +348,6 @@ CrudTable.defaultProps = {
     actionErrorText: "Error executing action",
     listErrorText: "Error listing resources",
     formatErrorMessage: error => error.response ? (error.response.data.message || error.response.data.error) : (error.message || error.error),
-
 }
 
 export default CrudTable
