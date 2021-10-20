@@ -48,7 +48,7 @@ class Wrapper extends React.Component {
         { text: "Action 3 (confirm)", onClick: action('Action 3'), confirm: true },
         { text: "Action 4 (condition)", onClick: action('Action 4'), batch: true, condition: row => row.id % 2 === 0 },
       ]}
-      onClickRow={action('onClickRow')}
+      // onClickRow={action('onClickRow')}
       selectable={boolean('Selectable (selectable)', true)}
       searchable={boolean('Searchable (searchable)', true)}
       pageSizes={array('Page sizes (pageSizes)', [10, 50, 100, 1])}

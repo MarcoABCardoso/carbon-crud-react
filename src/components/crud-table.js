@@ -193,15 +193,16 @@ class CrudTable extends Component {
         let RowType = this.props.renderDetail ? TableExpandRow : TableRow
         return <TableBody>
             {props.rows.map((row, i) => <>
-                <RowType key={`row-${i}`} {...props.getRowProps({ row })} style={{ cursor: "pointer" }} onClick={ev => this.handleClickRow(row)}>
+                <RowType key={`row-${i}`} {...props.getRowProps({ row })} style={{ cursor: "pointer" }}>
                     {this.props.selectable && <TableSelectRow {...props.getSelectionProps({ row })} />}
                     {row.cells.map((cell, j) => <TableCell
+                        onClick={ev => this.handleClickRow(row)}
                         key={`cell-${j}`}>
                         {this.props.headers[j].detail ? <Link style={{ cursor: 'pointer' }} onClick={ev => this.setState({ detailModalContent: this.props.headers[j].detail(this.state.rows.find(r => r.id === row.id)), detailModalOpen: true })}>{this.props.headers[j].parse ? this.props.headers[j].parse(cell.value) : cell.value}</Link> : this.props.headers[j].parse ? this.props.headers[j].parse(cell.value) : cell.value}
                     </TableCell>)}
                     <TableCell>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
-                            {(this.props.rowOptions.length > 0 || this.props.update || this.props.delete) && <OverflowMenu flipped>
+                            {(this.props.rowOptions.length > 0 || this.props.update || this.props.delete) && <OverflowMenu flipped onClick={ev => { ev.preventDefault(); console.log(ev) }}>
                                 {this.props.rowOptions
                                     .filter(link => (link.condition && this.state.rows.find(r => r.id === row.id)) ? link.condition(this.state.rows.find(r => r.id === row.id)) : true)
                                     .map((link, k) => <OverflowMenuItem
