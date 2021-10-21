@@ -222,7 +222,10 @@ class CrudTable extends Component {
                                     )}
                                 {this.props.update && <OverflowMenuItem
                                     itemText={this.props.editButtonText}
-                                    onClick={this.handleEditRow.bind(this, row)} />}
+                                    onClick={() => {
+                                        let formData = this.state.rows.find(i => i.id === row.id)
+                                        this.handleEditRow(formData)
+                                    }} />}
                                 {this.props.delete && <OverflowMenuItem
                                     itemText={this.props.deleteButtonText}
                                     hasDivider
